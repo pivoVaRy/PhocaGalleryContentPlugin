@@ -497,7 +497,7 @@ class plgContentPhocaGallery extends CMSPlugin
                 //--------------------------
 
 
-                if ($view == 'category') {
+                if ($view == 'category' || $view == 'category-clear-layout') {
 
                     $this->_setPluginNumberCategoryView();
                     $layoutBI 	= new FileLayout('box_image', null, array('component' => 'com_phocagallery'));
@@ -519,7 +519,7 @@ class plgContentPhocaGallery extends CMSPlugin
                         $max = $limitcount;
                     }
 
-                    if ($view == 'category') {
+                    if ($view == 'category' || $view == 'category-clear-layout') {
                         if ($max > 0) {
                             $limit = ' LIMIT '.(int)$limitstart.',' . (int)$max;
                         }
@@ -612,170 +612,178 @@ class plgContentPhocaGallery extends CMSPlugin
                         }
 
                         foreach ($images as $k => $v) {
-
-                            $o .= '<div class="pg-item-box">'. "\n";// BOX START
-                            //$o .= '<div class="ph-gallery-plugin-box' . $class . '">';
-                            //$o .= '<div class="ph-gallery-plugin-image-container">';
-                            //$o .= '<div class="ph-gallery-plugin-image-box">';
-
-                            /*	if ($count == 1) {
-                                    $o .= '<div class="col-sm-6 col-md-'.$nw.'">';
-                                    $o .= '<div class="thumbnail ph-thumbnail">';
-                                } else {
-                                    $o .= '<div class="ph-thumbnail-one">';
-                                }*/
-
-                            $image = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'medium');
-
-
-                            if ($v->extm != '') {
-                                $imageM = $v->extm;
-                                $imageL = $v->extl;
-                            } else {
-                                $imageMO = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'medium');
-                                if (isset($imageMO->rel) && $imageMO->rel != '') {
-                                    $imageM = Uri::base(false) . $imageMO->rel;
-                                }
+                            if ($view == 'category-clear-layout') {
                                 $imageLO = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'large');
                                 if (isset($imageLO->rel) && $imageLO->rel != '') {
                                     $imageL = Uri::base(false) . $imageLO->rel;
                                 }
+                                $v->item_type = "image";
+                                $v->link = $imageLO->rel;
+                                $v->ordering = $k;
+                                $d = array();
+                                $d['item'] = $v;
+                                $d['t'] = [];
+                                $o .= $layoutBI->render($d);
                             }
+                            else {
+                                $o .= '<div class="pg-item-box">' . "\n";// BOX START
+                                //$o .= '<div class="ph-gallery-plugin-box' . $class . '">';
+                                //$o .= '<div class="ph-gallery-plugin-image-container">';
+                                //$o .= '<div class="ph-gallery-plugin-image-box">';
 
-                            $o .= '<figure itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">';
-                            if ($imageL != '') {
-                                /*if ($count == 1) {
-                                    $o .= '<a href="'.$imageL.'" rel="prettyPhoto[\'pp_gal_plugin'.(int)$this->_plugin_number.'\']">';
+                                /*	if ($count == 1) {
+                                        $o .= '<div class="col-sm-6 col-md-'.$nw.'">';
+                                        $o .= '<div class="thumbnail ph-thumbnail">';
+                                    } else {
+                                        $o .= '<div class="ph-thumbnail-one">';
+                                    }*/
+
+                                $image = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'medium');
+
+
+                                if ($v->extm != '') {
+                                    $imageM = $v->extm;
+                                    $imageL = $v->extl;
                                 } else {
-                                    $o .= '<a href="'.$imageL.'" rel="prettyPhoto">';
-                                }*/
-
-                                // TODO SIZE
-                                $w = $large_image_width;
-                                $h = $large_image_height;
-                                if (isset($v->extw) && $v->extw != '') {
-                                    $extWA = explode(',', $v->extw);
-                                    if (isset($extWA[0])) {
-                                        $w = $extWA[0];
+                                    $imageMO = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'medium');
+                                    if (isset($imageMO->rel) && $imageMO->rel != '') {
+                                        $imageM = Uri::base(false) . $imageMO->rel;
+                                    }
+                                    $imageLO = PhocaGalleryFileThumbnail::getThumbnailName($v->filename, 'large');
+                                    if (isset($imageLO->rel) && $imageLO->rel != '') {
+                                        $imageL = Uri::base(false) . $imageLO->rel;
                                     }
                                 }
 
-                                if (isset($v->exth) && $v->exth != '') {
-                                    $extHA = explode(',', $v->exth);
-                                    if (isset($extHA[0])) {
-                                        $h = $extHA[0];
-                                    }
-                                }
-
-
-                                /*if ($detail_window == 2) {
-
-                                    if ($count == 1) {
+                                $o .= '<figure itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">';
+                                if ($imageL != '') {
+                                    /*if ($count == 1) {
                                         $o .= '<a href="'.$imageL.'" rel="prettyPhoto[\'pp_gal_plugin'.(int)$this->_plugin_number.'\']">';
                                     } else {
                                         $o .= '<a href="'.$imageL.'" rel="prettyPhoto">';
+                                    }*/
+
+                                    // TODO SIZE
+                                    $w = $large_image_width;
+                                    $h = $large_image_height;
+                                    if (isset($v->extw) && $v->extw != '') {
+                                        $extWA = explode(',', $v->extw);
+                                        if (isset($extWA[0])) {
+                                            $w = $extWA[0];
+                                        }
                                     }
 
-                                } else {*/
-                                ///$o .= '<a class="pg-photoswipe-button" href="' . $imageL . '" itemprop="contentUrl" data-size="' . $w . 'x' . $h . '" >';
-                                /*}*/
-                                $v->datasize = 'data-size="' . $w . 'x' . $h . '"';
-
-                            }
-
-                         /*   if ($imageM != '') {
-                                $o .= '<img src="' . $imageM . '" alt="' . $v->title . '" class="c-Image c-Image--shaded" itemprop="thumbnail" />';
-                            }
-
-                            if ($imageL != '') {
-                                $o .= '</a>';
-
-                            }*/
-
-                            // Display BOX IMAGE
-                            // LAYOUT: components/com_phocagallery/layouts/box_image.php
-                            $v->class		= 'pg-photoswipe-button';
-                            $v->class2		= 'pg-photoswipe-button-copy';
-                            $v->class3		= 'pg-bs-modal-button';
-                            $v->link 		= $imageL;
-                            $v->link2 		= 'javascript:void(0)';
-                            //$v->link3		= $siteLink;
-                            //$v->linkorig		= $imgLinkOrig;
-                                            $v->linkthumbnailpath = $imageM;
-                            $v->onclick		= '';
-                            $v->itemprop		= 'contentUrl';
-                            $v->onclick2		= 'document.getElementById(\'pgImg'.$v->id.'\').click();';
-                            $v->onclick3		= $v->onclick;
-                            $v->oimgalt  = $v->title;
-                            $d          = array();
-                            $d['item']  = $v;
-                            $d['t']     = [];
-                            $o .= $layoutBI->render($d);
-
-
-                            if ($photoswipe_display_caption > 0) {
-
-                                $caption = $v->title;
-
-                                if ($photoswipe_display_caption == 2) {
-                                    $caption = $v->description;
-                                }
-
-                                if ($photoswipe_display_caption == 3) {
-
-                                    $caption = '';
-                                    if ($v->title != '') {
-                                        $caption .= $v->title . '<br>';
+                                    if (isset($v->exth) && $v->exth != '') {
+                                        $extHA = explode(',', $v->exth);
+                                        if (isset($extHA[0])) {
+                                            $h = $extHA[0];
+                                        }
                                     }
-                                    $caption .= $v->description;
+
+
+                                    /*if ($detail_window == 2) {
+
+                                        if ($count == 1) {
+                                            $o .= '<a href="'.$imageL.'" rel="prettyPhoto[\'pp_gal_plugin'.(int)$this->_plugin_number.'\']">';
+                                        } else {
+                                            $o .= '<a href="'.$imageL.'" rel="prettyPhoto">';
+                                        }
+
+                                    } else {*/
+                                    ///$o .= '<a class="pg-photoswipe-button" href="' . $imageL . '" itemprop="contentUrl" data-size="' . $w . 'x' . $h . '" >';
+                                    /*}*/
+                                    $v->datasize = 'data-size="' . $w . 'x' . $h . '"';
+
                                 }
 
-                                $o .= '<figcaption itemprop="caption description">'.$caption.'</figcaption>';
-                            }
+                                /*   if ($imageM != '') {
+                                       $o .= '<img src="' . $imageM . '" alt="' . $v->title . '" class="c-Image c-Image--shaded" itemprop="thumbnail" />';
+                                   }
+
+                                   if ($imageL != '') {
+                                       $o .= '</a>';
+
+                                   }*/
+
+                                // Display BOX IMAGE
+                                // LAYOUT: components/com_phocagallery/layouts/box_image.php
+                                $v->class = 'pg-photoswipe-button';
+                                $v->class2 = 'pg-photoswipe-button-copy';
+                                $v->class3 = 'pg-bs-modal-button';
+                                $v->link = $imageL;
+                                $v->link2 = 'javascript:void(0)';
+                                //$v->link3		= $siteLink;
+                                //$v->linkorig		= $imgLinkOrig;
+                                $v->linkthumbnailpath = $imageM;
+                                $v->onclick = '';
+                                $v->itemprop = 'contentUrl';
+                                $v->onclick2 = 'document.getElementById(\'pgImg' . $v->id . '\').click();';
+                                $v->onclick3 = $v->onclick;
+                                $v->oimgalt = $v->title;
+                                $d = array();
+                                $d['item'] = $v;
+                                $d['t'] = [];
+                                $o .= $layoutBI->render($d);
 
 
-                            $o .= '</figure>';
+                                if ($photoswipe_display_caption > 0) {
 
-                            if ($display_title == 1) {
+                                    $caption = $v->title;
 
+                                    if ($photoswipe_display_caption == 2) {
+                                        $caption = $v->description;
+                                    }
 
-                                $o .= '<div class="pg-item-box-title image">' . "\n";
+                                    if ($photoswipe_display_caption == 3) {
 
-                                $o .= '<svg class="ph-si ph-si-image"><use xlink:href="#ph-si-image"></use></svg>' . "\n";
-                                $o .= ' <a class="' . $v->class2 . '" title="' . htmlentities($v->title, ENT_QUOTES, 'UTF-8') . '"'
-                                    . ' data-img-title="' . $v->title . '" href="' . Route::_($v->link2) . '"';
+                                        $caption = '';
+                                        if ($v->title != '') {
+                                            $caption .= $v->title . '<br>';
+                                        }
+                                        $caption .= $v->description;
+                                    }
 
-                                if ($v->onclick2 != '') {
-                                    $o .= 'onclick="' . $v->onclick2 . '"';
+                                    $o .= '<figcaption itemprop="caption description">' . $caption . '</figcaption>';
                                 }
-                                $o .= ' >';
-                                $o .= '' . $v->title . '';
-                                $o .= '</a>';
-
-                                $o .= '</div>' . "\n";
 
 
+                                $o .= '</figure>';
+
+                                if ($display_title == 1) {
 
 
+                                    $o .= '<div class="pg-item-box-title image">' . "\n";
 
+                                    $o .= '<svg class="ph-si ph-si-image"><use xlink:href="#ph-si-image"></use></svg>' . "\n";
+                                    $o .= ' <a class="' . $v->class2 . '" title="' . htmlentities($v->title, ENT_QUOTES, 'UTF-8') . '"'
+                                        . ' data-img-title="' . $v->title . '" href="' . Route::_($v->link2) . '"';
+
+                                    if ($v->onclick2 != '') {
+                                        $o .= 'onclick="' . $v->onclick2 . '"';
+                                    }
+                                    $o .= ' >';
+                                    $o .= '' . $v->title . '';
+                                    $o .= '</a>';
+
+                                    $o .= '</div>' . "\n";
+
+
+                                }
+
+
+                                //$o .= '</div>'; // end ph-gallery-plugin-image-box
+
+                                //$o .= '</div>';// end ph-gallery-plugin-image-container
+                                /*if ($display_title == 1) {
+                                    $o .= '<div class="ph-gallery-plugin-image-title">' . $v->title . '</div>';
+                                }*/
+
+                                $o .= '</div>';// end ph-gallery-plugin-box
+
+                                /*if ($count == 1) {
+                                    $o .= '</div>'; // end column
+                                }*/
                             }
-
-
-
-
-                            //$o .= '</div>'; // end ph-gallery-plugin-image-box
-
-                            //$o .= '</div>';// end ph-gallery-plugin-image-container
-                            /*if ($display_title == 1) {
-                                $o .= '<div class="ph-gallery-plugin-image-title">' . $v->title . '</div>';
-                            }*/
-
-                            $o .= '</div>';// end ph-gallery-plugin-box
-
-                            /*if ($count == 1) {
-                                $o .= '</div>'; // end column
-                            }*/
-
                         }
                         //$o .= '</div>';
                        // $o .= '</div>';// end ph-gallery-plugin-container
