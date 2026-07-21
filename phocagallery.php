@@ -141,7 +141,8 @@ class plgContentPhocaGallery extends CMSPlugin
                 preg_match($regex_one, $phocagallery, $phocagallery_parts);
                 $parts          = explode("|", $phocagallery_parts[2]);
                 $values_replace = array("/^'/", "/'$/", "/^&#39;/", "/&#39;$/", "/<br \/>/");
-
+                $legacybehaviour = in_array('legacybehaviour', $parts, true);
+                $view = "category-clear-layout";
                 foreach ($parts as $key => $value) {
 
                     $values = explode("=", $value, 2);
@@ -151,7 +152,7 @@ class plgContentPhocaGallery extends CMSPlugin
                     }
 
                     // Get plugin parameters from article
-                    if ($values[0] == 'view') {                 $view = $values[1];}
+                    if ($values[0] == 'view' && $legacybehaviour) {                 $view = $values[1];}
                     else if ($values[0] == 'id') {              $id = $values[1];}
                     else if ($values[0] == 'categoryid') {      $id = $values[1];}// Backward compatibility - categoryid is alias for id
                     else if($values[0]=='imageid')			{$imageid				= $values[1];}
